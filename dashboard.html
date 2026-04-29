@@ -6,36 +6,72 @@
   <title>PWR Dashboard</title>
   <link rel="stylesheet" href="Style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .grid-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .routine-days { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
+    .day-btn { padding: 10px 20px; background: #2a2a2a; border: 1px solid #c581ff; color: white; cursor: pointer; border-radius: 5px; }
+    .day-btn:hover { background: #c581ff; }
+    table { border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
+    th { color: #c581ff; }
+  </style>
 </head>
 <body>
 
 <div class="sidebar">
   <h2>PWR</h2>
   <a href="#" onclick="showSection('dashboard')">Dashboard</a>
-  <a href="#" onclick="showSection('workouts')">Entrenos</a>
+  <a href="#" onclick="showSection('workouts')">Historial</a>
+  <a href="#" onclick="showSection('routine')">Rutina</a>
   <a href="#" onclick="logout()">Cerrar Sesión</a>
 </div>
 
 <div class="main">
+  <!-- DASHBOARD SECTION -->
   <div id="dashboard-section">
-    <h1>Dashboard</h1>
-    <div class="card">
-      <h3>Nuevo entreno</h3>
-      <input id="workoutName" placeholder="Nombre entreno (ej: Empuje)">
-      <textarea id="workoutData" placeholder="Ej: Bench 80x5, Military 50x8"></textarea>
-      <button onclick="saveWorkout()">Guardar entreno</button>
+    <h1>Progreso SBD</h1>
+    <div class="grid-charts">
+      <div class="card">
+        <h3>Squat</h3>
+        <canvas id="sqChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Bench</h3>
+        <canvas id="bpChart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Deadlift</h3>
+        <canvas id="dlChart"></canvas>
+      </div>
     </div>
 
     <div class="card">
-      <h3>Bench Progress</h3>
-      <canvas id="benchChart"></canvas>
+      <h3>Registrar Entrenamiento</h3>
+      <input id="workoutName" placeholder="Nombre (ej: SQ Day)">
+      <textarea id="workoutData" placeholder="Ej: SQ 140kg 4x4"></textarea>
+      <button onclick="saveWorkout()">Guardar</button>
     </div>
   </div>
 
+  <!-- HISTORY SECTION -->
   <div id="workouts-section" style="display:none;">
-    <h1>Mis Entrenamientos</h1>
+    <h1>Historial de Entrenos</h1>
     <div id="workoutList">
       <p>Cargando entrenos...</p>
+    </div>
+  </div>
+
+  <!-- ROUTINE SECTION -->
+  <div id="routine-section" style="display:none;">
+    <h1>Mi Rutina</h1>
+    <div class="routine-days">
+      <button class="day-btn" onclick="loadRoutine('Lunes')">Lunes</button>
+      <button class="day-btn" onclick="loadRoutine('Martes')">Martes</button>
+      <button class="day-btn" onclick="loadRoutine('Jueves')">Jueves</button>
+      <button class="day-btn" onclick="loadRoutine('Viernes')">Viernes</button>
+    </div>
+    <div class="card" id="routineContent">
+      <p>Selecciona un día para ver la rutina.</p>
     </div>
   </div>
 </div>
@@ -44,6 +80,7 @@
   function showSection(sectionId) {
     document.getElementById('dashboard-section').style.display = sectionId === 'dashboard' ? 'block' : 'none';
     document.getElementById('workouts-section').style.display = sectionId === 'workouts' ? 'block' : 'none';
+    document.getElementById('routine-section').style.display = sectionId === 'routine' ? 'block' : 'none';
   }
 </script>
 <script type="module" src="App.js"></script>
