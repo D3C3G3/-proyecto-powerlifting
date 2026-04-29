@@ -11,9 +11,17 @@
     .routine-days { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
     .day-btn { padding: 10px 20px; background: #2a2a2a; border: 1px solid #c581ff; color: white; cursor: pointer; border-radius: 5px; }
     .day-btn:hover { background: #c581ff; }
-    table { border-collapse: collapse; margin-top: 10px; }
+    table { border-collapse: collapse; margin-top: 10px; width: 100%; }
     th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
     th { color: #c581ff; }
+    
+    /* Estilos Formulario */
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #c581ff; font-weight: bold; }
+    select, input { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 5px; box-sizing: border-box; }
+    .weight-btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
+    .weight-btn { padding: 8px; background: #333; border: 1px solid #c581ff; color: white; cursor: pointer; border-radius: 3px; font-size: 12px; }
+    .weight-btn:hover { background: #c581ff; }
   </style>
 </head>
 <body>
@@ -31,34 +39,57 @@
   <div id="dashboard-section">
     <h1>Progreso SBD</h1>
     <div class="grid-charts">
-      <div class="card">
-        <h3>Squat</h3>
-        <canvas id="sqChart"></canvas>
-      </div>
-      <div class="card">
-        <h3>Bench</h3>
-        <canvas id="bpChart"></canvas>
-      </div>
-      <div class="card">
-        <h3>Deadlift</h3>
-        <canvas id="dlChart"></canvas>
-      </div>
+      <div class="card"><h3>Squat</h3><canvas id="sqChart"></canvas></div>
+      <div class="card"><h3>Bench</h3><canvas id="bpChart"></canvas></div>
+      <div class="card"><h3>Deadlift</h3><canvas id="dlChart"></canvas></div>
     </div>
 
     <div class="card">
       <h3>Registrar Entrenamiento</h3>
-      <input id="workoutName" placeholder="Nombre (ej: SQ Day)">
-      <textarea id="workoutData" placeholder="Ej: SQ 140kg 4x4"></textarea>
-      <button onclick="saveWorkout()">Guardar</button>
+      
+      <div class="form-group">
+        <label>Día de la semana</label>
+        <select id="workoutDay" onchange="updateExercises()">
+          <option value="">-- Selecciona Día --</option>
+          <option value="Lunes">Lunes</option>
+          <option value="Martes">Martes</option>
+          <option value="Jueves">Jueves</option>
+          <option value="Viernes">Viernes</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ejercicio</label>
+        <select id="workoutEx">
+          <option value="">-- Selecciona Día Primero --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Peso (kg)</label>
+        <input type="number" id="workoutWeight" placeholder="0" step="0.5">
+        <div class="weight-btns">
+          <button class="weight-btn" onclick="addWeight(2.5)">+2.5</button>
+          <button class="weight-btn" onclick="addWeight(5)">+5</button>
+          <button class="weight-btn" onclick="addWeight(10)">+10</button>
+          <button class="weight-btn" onclick="addWeight(15)">+15</button>
+          <button class="weight-btn" onclick="addWeight(20)">+20</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Repeticiones</label>
+        <input type="number" id="workoutReps" placeholder="0">
+      </div>
+
+      <button onclick="saveWorkout()" style="width:100%; margin-top:10px;">Guardar Registro</button>
     </div>
   </div>
 
   <!-- HISTORY SECTION -->
   <div id="workouts-section" style="display:none;">
     <h1>Historial de Entrenos</h1>
-    <div id="workoutList">
-      <p>Cargando entrenos...</p>
-    </div>
+    <div id="workoutList"><p>Cargando entrenos...</p></div>
   </div>
 
   <!-- ROUTINE SECTION -->
@@ -70,9 +101,7 @@
       <button class="day-btn" onclick="loadRoutine('Jueves')">Jueves</button>
       <button class="day-btn" onclick="loadRoutine('Viernes')">Viernes</button>
     </div>
-    <div class="card" id="routineContent">
-      <p>Selecciona un día para ver la rutina.</p>
-    </div>
+    <div class="card" id="routineContent"><p>Selecciona un día para ver la rutina.</p></div>
   </div>
 </div>
 
