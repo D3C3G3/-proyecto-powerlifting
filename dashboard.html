@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWR Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>PWR</h2>
+
+  <a href="#">Dashboard</a>
+  <a href="#">Rutinas</a>
+  <a href="#">PR Tracker</a>
+  <a href="#">Calendario</a>
+  <a href="#">Notas</a>
+  <a href="#">Objetivos</a>
+</div>
+
+<div class="main">
+
+  <h1>Dashboard</h1>
+
+  <div class="card">
+    <h3>Nuevo entreno</h3>
+
+    <input id="workoutName" placeholder="Nombre entreno">
+
+    <textarea id="workoutData" placeholder="Ej: Bench 80x5"></textarea>
+
+    <button onclick="saveWorkout()">Guardar entreno</button>
+  </div>
+
+  <div class="card">
+    <h3>Bench Progress</h3>
+    <canvas id="benchChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>PR Actual</h3>
+    <p>🔥 Bench Press: 80kg</p>
+  </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
