@@ -27,6 +27,22 @@ import {
   provider,
   signInWithPopup
 } from "./firebase.js";
+
+window.googleLogin = async () => {
+
+  try {
+
+    await signInWithPopup(auth, provider);
+
+    window.location.href = "dashboard.html";
+
+  } catch(err) {
+
+    alert(err.message);
+
+  }
+
+};
   
 import {
   auth,
