@@ -13,19 +13,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-
-  apiKey: "TU_API_KEY",
-
-  authDomain: "TU_AUTH_DOMAIN",
-
-  projectId: "TU_PROJECT_ID",
-
-  storageBucket: "TU_STORAGE_BUCKET",
-
-  messagingSenderId: "TU_MESSAGING_ID",
-
-  appId: "TU_APP_ID"
-};
+    apiKey: "AIzaSyD8WV4nQ1QgGfe3cjAo8SxJO_m_Ftxfz38",
+    authDomain: "pwr-tracker.firebaseapp.com",
+    projectId: "pwr-tracker",
+    storageBucket: "pwr-tracker.firebasestorage.app",
+    messagingSenderId: "562651513088",
+    appId: "1:562651513088:web:4457fc6434f962f36ab3e5",
+    measurementId: "G-0FQKRQ1MNT"
+  };
 
 const app = initializeApp(firebaseConfig);
 
