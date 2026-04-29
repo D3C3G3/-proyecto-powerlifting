@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWR Tracker Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="login">
+  <h1>PWR Tracker</h1>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="register()">Crear cuenta</button>
+  <button onclick="login()">Iniciar sesión</button>
+</div>
+
+<script type="module">
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "./firebase.js";
+
+window.register = async () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    window.location.href = "dashboard.html";
+  } catch(err) {
+    alert(err.message);
+  }
+};
+
+window.login = async () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    window.location.href = "dashboard.html";
+  } catch(err) {
+    alert(err.message);
+  }
+};
+</script>
+
+</body>
+</html>
