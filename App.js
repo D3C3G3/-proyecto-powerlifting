@@ -3,7 +3,7 @@ import {
   db,
   doc,
   setDoc
-} from "./firebase.js";
+} from "./Firebase.js";
 
 window.saveWorkout = async () => {
 
