@@ -4,50 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PWR Dashboard</title>
-
-  <link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="Style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="sidebar">
   <h2>PWR</h2>
-
-  <a href="#">Dashboard</a>
-  <a href="#">Rutinas</a>
-  <a href="#">PR Tracker</a>
-  <a href="#">Calendario</a>
-  <a href="#">Notas</a>
-  <a href="#">Objetivos</a>
+  <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+  <a href="#" onclick="showSection('workouts')">Entrenos</a>
+  <a href="#" onclick="logout()">Cerrar Sesión</a>
 </div>
 
 <div class="main">
+  <div id="dashboard-section">
+    <h1>Dashboard</h1>
+    <div class="card">
+      <h3>Nuevo entreno</h3>
+      <input id="workoutName" placeholder="Nombre entreno (ej: Empuje)">
+      <textarea id="workoutData" placeholder="Ej: Bench 80x5, Military 50x8"></textarea>
+      <button onclick="saveWorkout()">Guardar entreno</button>
+    </div>
 
-  <h1>Dashboard</h1>
-
-  <div class="card">
-    <h3>Nuevo entreno</h3>
-
-    <input id="workoutName" placeholder="Nombre entreno">
-
-    <textarea id="workoutData" placeholder="Ej: Bench 80x5"></textarea>
-
-    <button onclick="saveWorkout()">Guardar entreno</button>
+    <div class="card">
+      <h3>Bench Progress</h3>
+      <canvas id="benchChart"></canvas>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Bench Progress</h3>
-    <canvas id="benchChart"></canvas>
+  <div id="workouts-section" style="display:none;">
+    <h1>Mis Entrenamientos</h1>
+    <div id="workoutList">
+      <p>Cargando entrenos...</p>
+    </div>
   </div>
-
-  <div class="card">
-    <h3>PR Actual</h3>
-    <p>🔥 Bench Press: 80kg</p>
-  </div>
-
 </div>
 
+<script>
+  function showSection(sectionId) {
+    document.getElementById('dashboard-section').style.display = sectionId === 'dashboard' ? 'block' : 'none';
+    document.getElementById('workouts-section').style.display = sectionId === 'workouts' ? 'block' : 'none';
+  }
+</script>
 <script type="module" src="App.js"></script>
 
 </body>
