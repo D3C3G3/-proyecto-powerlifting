@@ -1,92 +1,168 @@
+:root {
+  --bg-color: #000000;
+  --card-bg: #121212;
+  --accent-color: #10b981; /* Verde Esmeralda */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --border-color: #262626;
+  --input-bg: #1c1c1c;
+  --transition: all 0.3s ease;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f7f7fb;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* LOGIN */
-
-.login {
-  width: 90%;
-  max-width: 320px;
-  margin: 100px auto;
-  text-align: center;
-}
-
-.login h1 {
-  color: #c581ff;
-}
-
-input,
-textarea {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background: #c581ff;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-/* SIDEBAR */
-
+/* Layout */
 .sidebar {
-  width: 220px;
-  height: 100vh;
   position: fixed;
-  background: #142ED5;
-  color: white;
-  padding: 20px;
+  width: 240px;
+  height: 100vh;
+  border-right: 1px solid var(--border-color);
+  padding: 2rem 1.5rem;
   box-sizing: border-box;
+  background: var(--bg-color);
+  z-index: 100;
 }
-
-.sidebar h2 {
-  margin-top: 0;
-}
-
-.sidebar a {
-  display: block;
-  color: white;
-  text-decoration: none;
-  margin: 15px 0;
-}
-
-/* MAIN */
 
 .main {
   margin-left: 240px;
-  padding: 20px;
+  padding: 2rem 3rem;
+  max-width: 1000px;
 }
 
-/* CARDS */
+/* Typography */
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 2rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 1.5rem; }
+h3 { font-size: 1rem; font-weight: 600; margin: 0; }
 
+/* Components */
 .card {
-  background: white;
-  padding: 20px;
-  border-radius: 18px;
-  margin-bottom: 20px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
 }
 
-/* MOBILE */
+.card:hover { border-color: var(--accent-color); }
 
+.sidebar a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* Forms */
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+
+input, select, textarea {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: white;
+  font-size: 1rem;
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+input:focus { outline: none; border-color: var(--accent-color); }
+
+.btn-primary {
+  background: var(--accent-color);
+  color: black;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: var(--transition);
+}
+
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* Grid */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Plate Calculator UI */
+.plate-calc-icon {
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Accordion */
+.accordion-item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.accordion-header {
+  padding: 1rem 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 500px;
+  padding-bottom: 1rem;
+}
+
+/* Weight Buttons */
+.weight-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.weight-btn {
+  flex: 1;
+  height: 44px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.weight-btn:hover { border-color: var(--accent-color); }
+
+/* Responsive */
 @media (max-width: 768px) {
-
-  .sidebar {
-    display: none;
-  }
-
-  .main {
-    margin-left: 0;
-  }
-
+  .sidebar { width: 100%; height: auto; position: relative; padding: 1rem; border-right: none; border-bottom: 1px solid var(--border-color); }
+  .main { margin-left: 0; padding: 1.5rem; }
+  .grid-3 { grid-template-columns: 1fr; }
 }
