@@ -3,60 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PWR Tracker | Premium</title>
+  <title>PWR Tracker</title>
   <link rel="stylesheet" href="Style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="sidebar">
-  <h1 style="font-size: 1.5rem; margin-bottom: 3rem;">PWR <span style="color: var(--accent-color);">Tracker</span></h1>
-  <nav>
-    <a href="#" onclick="showSection('dashboard')" class="active">Dashboard</a>
-    <a href="#" onclick="showSection('workouts')">Historial</a>
-    <a href="#" onclick="showSection('routine')">Rutina</a>
-    <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-      <a href="#" onclick="logout()" style="color: #ff4d4d;">Cerrar Sesión</a>
-    </div>
-  </nav>
-</div>
-
 <div class="main">
-  <!-- DASHBOARD SECTION -->
+  <!-- DASHBOARD -->
   <div id="dashboard-section">
-    <h1>Progreso SBD <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 400;">(Viernes)</span></h1>
+    <h1>Progreso <span class="text-accent">SBD</span></h1>
     
-    <div class="grid-3">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-          <h3>Squat</h3>
-          <span style="color: var(--accent-color); font-weight: 600;">KG</span>
-        </div>
-        <div style="height: 150px;"><canvas id="sqChart"></canvas></div>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between">
+        <h3>Squat</h3>
+        <span class="text-accent">Viernes</span>
       </div>
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-          <h3>Bench</h3>
-          <span style="color: #3b82f6; font-weight: 600;">KG</span>
-        </div>
-        <div style="height: 150px;"><canvas id="bpChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-          <h3>Deadlift</h3>
-          <span style="color: #f59e0b; font-weight: 600;">KG</span>
-        </div>
-        <div style="height: 150px;"><canvas id="dlChart"></canvas></div>
-      </div>
+      <div class="chart-container"><canvas id="sqChart"></canvas></div>
     </div>
 
-    <div class="card" style="max-width: 600px;">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between">
+        <h3>Bench</h3>
+        <span style="color:#007aff">Viernes</span>
+      </div>
+      <div class="chart-container"><canvas id="bpChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between">
+        <h3>Deadlift</h3>
+        <span style="color:#ff9500">Viernes</span>
+      </div>
+      <div class="chart-container"><canvas id="dlChart"></canvas></div>
+    </div>
+
+    <div class="card">
       <h2>Registrar Serie</h2>
-      
       <div class="form-group">
         <label>Día y Ejercicio</label>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
           <select id="workoutDay" onchange="updateExercises()">
             <option value="">Día</option>
             <option value="Lunes">Lunes</option>
@@ -64,14 +50,12 @@
             <option value="Jueves">Jueves</option>
             <option value="Viernes">Viernes</option>
           </select>
-          <select id="workoutEx">
-            <option value="">Ejercicio</option>
-          </select>
+          <select id="workoutEx"><option value="">Ejercicio</option></select>
         </div>
       </div>
 
       <div class="form-group">
-        <label>Peso (kg) <span class="plate-calc-icon" onclick="calculatePlates()">💿</span></label>
+        <label>Peso (kg) <span onclick="calculatePlates()" style="cursor:pointer">💿</span></label>
         <input type="number" id="workoutWeight" placeholder="0.0" step="0.5">
         <div class="weight-controls">
           <button class="weight-btn" onclick="addWeight(2.5)">+2.5</button>
@@ -81,46 +65,56 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
         <div class="form-group">
           <label>Reps</label>
           <input type="number" id="workoutReps" placeholder="0">
         </div>
         <div class="form-group">
-          <label>RPE (1-10)</label>
-          <input type="number" id="workoutRPE" placeholder="8.5" step="0.5" min="1" max="10">
+          <label>RPE</label>
+          <input type="number" id="workoutRPE" placeholder="8.5" step="0.5">
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Notas Técnicas / Feedback</label>
-        <textarea id="workoutNotes" placeholder="Sensaciones, velocidad de barra..." rows="2"></textarea>
-      </div>
-
-      <button class="btn-primary" onclick="saveWorkout()">Guardar Registro</button>
+      <button class="btn-primary" onclick="saveWorkout()">Guardar</button>
     </div>
   </div>
 
-  <!-- HISTORY SECTION -->
-  <div id="workouts-section" style="display:none;">
-    <h1>Historial <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 400;">(Agrupado por fecha)</span></h1>
-    <div id="workoutList">
-      <p style="color: var(--text-secondary);">Cargando historial...</p>
-    </div>
+  <!-- HISTORY -->
+  <div id="workouts-section" style="display:none">
+    <h1>Historial</h1>
+    <div id="workoutList"></div>
   </div>
 
-  <!-- ROUTINE SECTION -->
-  <div id="routine-section" style="display:none;">
-    <h1>Mi Rutina</h1>
-    <div class="routine-days">
-      <button class="day-btn" onclick="loadRoutine('Lunes')">Lunes</button>
-      <button class="day-btn" onclick="loadRoutine('Martes')">Martes</button>
-      <button class="day-btn" onclick="loadRoutine('Jueves')">Jueves</button>
-      <button class="day-btn" onclick="loadRoutine('Viernes')">Viernes</button>
+  <!-- ROUTINE -->
+  <div id="routine-section" style="display:none">
+    <h1>Rutina</h1>
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:20px">
+      <button class="weight-btn" onclick="loadRoutine('Lunes')">L</button>
+      <button class="weight-btn" onclick="loadRoutine('Martes')">M</button>
+      <button class="weight-btn" onclick="loadRoutine('Jueves')">J</button>
+      <button class="weight-btn" onclick="loadRoutine('Viernes')">V</button>
     </div>
     <div class="card" id="routineContent">
-      <p style="color: var(--text-secondary);">Selecciona un día para ver la rutina programada.</p>
+      <p style="color:var(--text-secondary)">Selecciona un día.</p>
     </div>
+    <button class="btn-primary" onclick="logout()" style="background:#ff3b30; margin-top:20px">Cerrar Sesión</button>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar glass">
+  <div class="tab-item active" onclick="showSection('dashboard')">
+    <span class="tab-icon">📊</span>
+    <span>Progreso</span>
+  </div>
+  <div class="tab-item" onclick="showSection('workouts')">
+    <span class="tab-icon">🕒</span>
+    <span>Historial</span>
+  </div>
+  <div class="tab-item" onclick="showSection('routine')">
+    <span class="tab-icon">📋</span>
+    <span>Rutina</span>
   </div>
 </div>
 
