@@ -15,34 +15,34 @@
     <h1>Progreso <span class="text-accent">SBD</span></h1>
     
     <div class="card">
-      <div style="display:flex; justify-content:space-between">
-        <h3>Squat</h3>
-        <span class="text-accent">Viernes</span>
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 style="color:var(--text-primary)">Squat</h3>
+        <span class="text-accent" style="font-weight:700">KG</span>
       </div>
       <div class="chart-container"><canvas id="sqChart"></canvas></div>
     </div>
 
     <div class="card">
-      <div style="display:flex; justify-content:space-between">
-        <h3>Bench</h3>
-        <span style="color:#007aff">Viernes</span>
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 style="color:var(--text-primary)">Bench</h3>
+        <span class="text-accent" style="font-weight:700">KG</span>
       </div>
       <div class="chart-container"><canvas id="bpChart"></canvas></div>
     </div>
 
     <div class="card">
-      <div style="display:flex; justify-content:space-between">
-        <h3>Deadlift</h3>
-        <span style="color:#ff9500">Viernes</span>
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 style="color:var(--text-primary)">Deadlift</h3>
+        <span class="text-accent" style="font-weight:700">KG</span>
       </div>
       <div class="chart-container"><canvas id="dlChart"></canvas></div>
     </div>
 
     <div class="card">
-      <h2>Registrar Serie</h2>
+      <h2 style="margin-bottom:20px; color:var(--text-primary)">Registrar Serie</h2>
       <div class="form-group">
         <label>Día y Ejercicio</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
           <select id="workoutDay" onchange="updateExercises()">
             <option value="">Día</option>
             <option value="Lunes">Lunes</option>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="form-group">
-        <label>Peso (kg) <span onclick="calculatePlates()" style="cursor:pointer">💿</span></label>
+        <label>Peso (kg) <span onclick="calculatePlates()" style="cursor:pointer; font-size:18px">💿</span></label>
         <input type="number" id="workoutWeight" placeholder="0.0" step="0.5">
         <div class="weight-controls">
           <button class="weight-btn" onclick="addWeight(2.5)">+2.5</button>
@@ -76,7 +76,7 @@
         </div>
       </div>
 
-      <button class="btn-primary" onclick="saveWorkout()">Guardar</button>
+      <button class="btn-primary" onclick="saveWorkout()">Guardar Registro</button>
     </div>
   </div>
 
@@ -89,16 +89,16 @@
   <!-- ROUTINE -->
   <div id="routine-section" style="display:none">
     <h1>Rutina</h1>
-    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:20px">
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:25px">
       <button class="weight-btn" onclick="loadRoutine('Lunes')">L</button>
       <button class="weight-btn" onclick="loadRoutine('Martes')">M</button>
       <button class="weight-btn" onclick="loadRoutine('Jueves')">J</button>
       <button class="weight-btn" onclick="loadRoutine('Viernes')">V</button>
     </div>
     <div class="card" id="routineContent">
-      <p style="color:var(--text-secondary)">Selecciona un día.</p>
+      <p style="color:var(--text-secondary); text-align:center">Selecciona un día para ver tu rutina.</p>
     </div>
-    <button class="btn-primary" onclick="logout()" style="background:#ff3b30; margin-top:20px">Cerrar Sesión</button>
+    <button class="btn-primary" onclick="logout()" style="background:#ff3b30; margin-top:30px; box-shadow: 0 10px 20px rgba(255, 59, 48, 0.2)">Cerrar Sesión</button>
   </div>
 </div>
 

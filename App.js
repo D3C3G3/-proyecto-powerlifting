@@ -15,13 +15,14 @@ let charts = {};
 window.showSection = (id) => {
   const sections = ['dashboard', 'workouts', 'routine'];
   sections.forEach(s => {
-    document.getElementById(`${s}-section`).style.display = s === id ? 'block' : 'none';
+    const el = document.getElementById(`${s}-section`);
+    if (el) el.style.display = s === id ? 'block' : 'none';
   });
   
-  // Actualizar Tab Bar
   document.querySelectorAll('.tab-item').forEach(item => {
     item.classList.remove('active');
-    if (item.getAttribute('onclick').includes(id)) {
+    const onclickAttr = item.getAttribute('onclick');
+    if (onclickAttr && onclickAttr.includes(id)) {
       item.classList.add('active');
     }
   });
@@ -38,10 +39,11 @@ auth.onAuthStateChanged((user) => {
 
 function initApp(userId) {
   loadWorkouts(userId);
-  initCharts();
+  // Pequeño delay para asegurar que los canvas existen
+  setTimeout(initCharts, 100);
 }
 
-// --- FORMULARIO ---
+// --- DATOS RUTINA ---
 const routineData = {
   Lunes: [{ ex: "SQ LB 2ct", set: "4 x 4 @4" }, { ex: "DL SUMO 2ct", set: "3 x 4 @4" }, { ex: "Ext. cuádriceps", set: "3 x 12 Rir1" }, { ex: "Prensa", set: "3 x 8 rir 0" }],
   Martes: [{ ex: "BP kodama", set: "3 x 5 @4" }, { ex: "Remo en T", set: "3 x 12 rir 0" }, { ex: "Jalón al pecho", set: "4 x 12 rir 1" }, { ex: "Remo Gironda", set: "3 x 12 rir 1" }, { ex: "Curl predicador", set: "2 x 12 rir 0" }, { ex: "Bayesian", set: "2 x 12 rir 0" }],
@@ -96,6 +98,7 @@ window.saveWorkout = async () => {
     alert("Guardado");
     document.getElementById("workoutWeight").value = "";
     document.getElementById("workoutReps").value = "";
+    document.getElementById("workoutRPE").value = "";
   } catch (err) {
     alert(err.message);
   }
@@ -134,12 +137,14 @@ function renderHistory(workouts) {
       </div>
       <div class="accordion-content">
         ${items.map(i => `
-          <div style="padding:10px 0; border-top:1px solid var(--border-color)">
+          <div style="padding:12px 0; border-top: 1px solid rgba(0,0,0,0.05)">
             <div style="display:flex; justify-content:space-between">
-              <strong>${i.ex}</strong>
-              <span>${i.weight}kg x ${i.reps}</span>
+              <strong style="color:var(--text-primary)">${i.ex}</strong>
+              <span style="font-weight:700">${i.weight}kg x ${i.reps}</span>
             </div>
-            <div style="font-size:12px; color:var(--text-secondary)">e1RM: ${Math.round(i.e1RM)}kg | RPE: ${i.rpe}</div>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
+              e1RM: ${Math.round(i.e1RM)}kg | RPE: ${i.rpe}
+            </div>
           </div>
         `).join('')}
       </div>
@@ -152,29 +157,35 @@ function renderHistory(workouts) {
 function initCharts() {
   const config = (color) => ({
     type: 'line',
-    data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.4, pointRadius: 4 }] },
+    data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color + '15', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: color, borderWidth: 3 }] },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8e8e93' } },
+        y: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { color: '#6e6e73', font: { weight: '600' } } },
         x: { display: false }
       }
     }
   });
 
-  charts.SQ = new Chart(document.getElementById("sqChart"), config("#34c759"));
-  charts.BP = new Chart(document.getElementById("bpChart"), config("#007aff"));
-  charts.DL = new Chart(document.getElementById("dlChart"), config("#ff9500"));
+  const sqCanvas = document.getElementById("sqChart");
+  const bpCanvas = document.getElementById("bpChart");
+  const dlCanvas = document.getElementById("dlChart");
+
+  if (sqCanvas) charts.SQ = new Chart(sqCanvas, config("#c581ff"));
+  if (bpCanvas) charts.BP = new Chart(bpCanvas, config("#c581ff"));
+  if (dlCanvas) charts.DL = new Chart(dlCanvas, config("#c581ff"));
 }
 
 function updateCharts(workouts) {
-  const fridayWorkouts = workouts.filter(w => w.isFriday);
   const mapping = { SQ: "SQ LB", BP: "BP", DL: "DL SUMO" };
 
   Object.entries(mapping).forEach(([key, name]) => {
-    const data = fridayWorkouts
+    if (!charts[key]) return;
+    
+    // Filtrar por ejercicio y ordenar por fecha
+    const data = workouts
       .filter(w => w.ex === name)
       .sort((a, b) => a.timestamp - b.timestamp)
       .slice(-7);
@@ -189,7 +200,7 @@ function updateCharts(workouts) {
 window.loadRoutine = (day) => {
   const container = document.getElementById("routineContent");
   const exercises = routineData[day] || [];
-  container.innerHTML = `<h2>${day}</h2>`;
+  container.innerHTML = `<h2 style="margin-bottom:20px; color:var(--text-primary)">${day}</h2>`;
   
   if (exercises.length === 0) {
     container.innerHTML += "<p style='color:var(--text-secondary)'>Día de descanso.</p>";
