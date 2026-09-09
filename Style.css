@@ -215,7 +215,34 @@ input:focus { outline: none; border-color: var(--accent-color); background: whit
 }
 
 .ex-name { font-weight: 700; font-size: 17px; display: block; color: var(--text-primary); }
-.ex-sets { color: var(--accent-color); font-size: 14px; font-weight: 600; }
+.ex-sets { color: var(--accent-color); font-size: 17px; font-weight: 700; display: block; margin-top: 4px; }
+
+.plates-link {
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 700;
+  text-decoration: underline;
+  color: var(--accent-color);
+}
+
+/* Checklist de ejercicios en Rutina */
+.routine-table td { display: flex; align-items: center; gap: 14px; }
+
+.routine-check {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.routine-table tr.done .ex-name,
+.routine-table tr.done .ex-sets {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
 
 /* Charts */
 .chart-container {
