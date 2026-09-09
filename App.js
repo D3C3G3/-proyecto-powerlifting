@@ -302,7 +302,7 @@ function renderPesos(prs) {
   orderedGroups.forEach(group => {
     const items = groups[group].sort((a, b) => b.weight - a.weight);
     const div = document.createElement("div");
-    div.className = "card accordion-item active";
+    div.className = "card accordion-item";
     div.innerHTML = `
       <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
         <span>${group}</span>
