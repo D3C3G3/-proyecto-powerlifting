@@ -14,7 +14,7 @@ let charts = {};
 
 // --- NAVEGACIÓN ---
 window.showSection = (id) => {
-  const sections = ['dashboard', 'workouts', 'routine', 'pesos'];
+  const sections = ['dashboard', 'workouts', 'routine', 'pesos', 'account'];
   sections.forEach(s => {
     const el = document.getElementById(`${s}-section`);
     if (el) el.style.display = s === id ? 'block' : 'none';
@@ -41,6 +41,7 @@ auth.onAuthStateChanged((user) => {
 function initApp(userId) {
   loadWorkouts(userId);
   loadPesos(userId);
+  loadProfile(userId);
   // Pequeño delay para asegurar que los canvas existen
   setTimeout(initCharts, 100);
 }
@@ -224,12 +225,20 @@ function renderHistory(workouts) {
 }
 
 // --- PESOS (récords por ejercicio, agrupados por zona muscular) ---
+let currentPRs = {}; // { "SQ LB": 140, "BP": 90, ... } — usado también para el Total SBD
+
 function loadPesos(userId) {
   const q = query(collection(db, "users", userId, "prs"), orderBy("weight", "desc"));
   onSnapshot(q, (snapshot) => {
     const prs = [];
-    snapshot.forEach(doc => prs.push(doc.data()));
+    currentPRs = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      prs.push(data);
+      currentPRs[data.ex] = data.weight;
+    });
     renderPesos(prs);
+    updateAccountMetrics();
   });
 }
 
@@ -353,4 +362,117 @@ window.calculatePlates = () => {
   alert(`Discos por lado: ${res.join(', ')} kg`);
 };
 
-window.logout = () => auth.signOut();
+// --- CUENTA / PERFIL ---
+
+// Categorías oficiales IPF (vigentes desde 2019, mujeres actualizadas con la
+// división 69/76 kg que sustituyó a la antigua clase de 72 kg).
+const IPF_WEIGHT_CLASSES = {
+  M: [59, 66, 74, 83, 93, 105, 120],
+  F: [47, 52, 57, 63, 69, 76, 84]
+};
+
+function getWeightCategory(gender, bodyWeight) {
+  if (!gender || isNaN(bodyWeight) || bodyWeight <= 0) return "—";
+  const classes = IPF_WEIGHT_CLASSES[gender];
+  for (const limit of classes) {
+    if (bodyWeight <= limit) return `-${limit} kg`;
+  }
+  return `+${classes[classes.length - 1]} kg`;
+}
+
+// Coeficientes oficiales IPF GL Points (Powerlifting Clásico / Raw)
+const IPF_GL_COEFFICIENTS = {
+  M: { a: 1199.72839, b: 1025.18162, c: 0.00921 },
+  F: { a: 610.32796, b: 1045.59282, c: 0.03048 }
+};
+
+function calculateIPFGL(total, bodyWeight, gender) {
+  if (!total || isNaN(bodyWeight) || bodyWeight <= 0 || !IPF_GL_COEFFICIENTS[gender]) return 0;
+  const { a, b, c } = IPF_GL_COEFFICIENTS[gender];
+  const denominator = a - b * Math.exp(-c * bodyWeight);
+  if (denominator <= 0) return 0;
+  return (100 * total) / denominator;
+}
+
+function updateAccountMetrics() {
+  const catEl = document.getElementById("weightCategory");
+  const totalEl = document.getElementById("totalSBD");
+  const glEl = document.getElementById("ipfGL");
+  if (!catEl || !totalEl || !glEl) return; // la sección aún no está en el DOM
+
+  const bodyWeight = parseFloat(document.getElementById("bodyWeight")?.value);
+  const gender = document.getElementById("gender")?.value;
+
+  catEl.textContent = getWeightCategory(gender, bodyWeight);
+
+  // Total SBD = mejor Squat + mejor Bench + mejor Deadlift registrados,
+  // usando los mismos ejercicios "principales" que ya siguen las gráficas de Progreso.
+  const sq = currentPRs["SQ LB"] || 0;
+  const bp = currentPRs["BP"] || 0;
+  const dl = currentPRs["DL SUMO"] || 0;
+  const total = sq + bp + dl;
+  totalEl.textContent = total > 0 ? `${total} kg` : "— kg";
+
+  if (total > 0 && gender && !isNaN(bodyWeight) && bodyWeight > 0) {
+    glEl.textContent = calculateIPFGL(total, bodyWeight, gender).toFixed(2);
+  } else {
+    glEl.textContent = "—";
+  }
+}
+
+function loadProfile(userId) {
+  const profileRef = doc(db, "users", userId);
+  onSnapshot(profileRef, (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      const weightInput = document.getElementById("bodyWeight");
+      const genderSelect = document.getElementById("gender");
+      // No pisar lo que el usuario está escribiendo ahora mismo
+      if (weightInput && data.bodyWeight != null && document.activeElement !== weightInput) {
+        weightInput.value = data.bodyWeight;
+      }
+      if (genderSelect && data.gender && document.activeElement !== genderSelect) {
+        genderSelect.value = data.gender;
+      }
+    }
+    updateAccountMetrics();
+  });
+}
+
+window.saveProfile = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const bodyWeight = parseFloat(document.getElementById("bodyWeight").value);
+  const gender = document.getElementById("gender").value;
+
+  if (isNaN(bodyWeight) || bodyWeight <= 0 || !gender) {
+    alert("Completa el peso corporal y el sexo");
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, "users", user.uid), { bodyWeight, gender }, { merge: true });
+    alert("Perfil guardado");
+    updateAccountMetrics();
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+// Recalcular al instante mientras el usuario escribe/selecciona (sin necesidad de guardar)
+document.addEventListener("DOMContentLoaded", () => {
+  const bodyWeightInput = document.getElementById("bodyWeight");
+  const genderSelect = document.getElementById("gender");
+  if (bodyWeightInput) bodyWeightInput.addEventListener("input", updateAccountMetrics);
+  if (genderSelect) genderSelect.addEventListener("change", updateAccountMetrics);
+});
+
+window.logout = async () => {
+  try {
+    await auth.signOut();
+  } finally {
+    localStorage.clear();
+    window.location.href = "Login.html";
+  }
+};
