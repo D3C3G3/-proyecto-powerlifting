@@ -405,11 +405,10 @@ function updateAccountMetrics() {
 
   catEl.textContent = getWeightCategory(gender, bodyWeight);
 
-  // Total SBD = mejor Squat + mejor Bench + mejor Deadlift registrados,
-  // usando los mismos ejercicios "principales" que ya siguen las gráficas de Progreso.
-  const sq = currentPRs["SQ LB"] || 0;
-  const bp = currentPRs["BP"] || 0;
-  const dl = currentPRs["DL SUMO"] || 0;
+  // Total SBD = suma de los máximos de SQ, BP y DL introducidos en el perfil
+  const sq = parseFloat(document.getElementById("maxSQ")?.value) || 0;
+  const bp = parseFloat(document.getElementById("maxBP")?.value) || 0;
+  const dl = parseFloat(document.getElementById("maxDL")?.value) || 0;
   const total = sq + bp + dl;
   totalEl.textContent = total > 0 ? `${total} kg` : "— kg";
 
@@ -425,15 +424,19 @@ function loadProfile(userId) {
   onSnapshot(profileRef, (snap) => {
     if (snap.exists()) {
       const data = snap.data();
-      const weightInput = document.getElementById("bodyWeight");
-      const genderSelect = document.getElementById("gender");
+      const fields = {
+        bodyWeight: document.getElementById("bodyWeight"),
+        gender: document.getElementById("gender"),
+        maxSQ: document.getElementById("maxSQ"),
+        maxBP: document.getElementById("maxBP"),
+        maxDL: document.getElementById("maxDL")
+      };
       // No pisar lo que el usuario está escribiendo ahora mismo
-      if (weightInput && data.bodyWeight != null && document.activeElement !== weightInput) {
-        weightInput.value = data.bodyWeight;
-      }
-      if (genderSelect && data.gender && document.activeElement !== genderSelect) {
-        genderSelect.value = data.gender;
-      }
+      Object.entries(fields).forEach(([key, el]) => {
+        if (el && data[key] != null && document.activeElement !== el) {
+          el.value = data[key];
+        }
+      });
     }
     updateAccountMetrics();
   });
@@ -445,6 +448,9 @@ window.saveProfile = async () => {
 
   const bodyWeight = parseFloat(document.getElementById("bodyWeight").value);
   const gender = document.getElementById("gender").value;
+  const maxSQ = parseFloat(document.getElementById("maxSQ").value) || 0;
+  const maxBP = parseFloat(document.getElementById("maxBP").value) || 0;
+  const maxDL = parseFloat(document.getElementById("maxDL").value) || 0;
 
   if (isNaN(bodyWeight) || bodyWeight <= 0 || !gender) {
     alert("Completa el peso corporal y el sexo");
@@ -452,7 +458,7 @@ window.saveProfile = async () => {
   }
 
   try {
-    await setDoc(doc(db, "users", user.uid), { bodyWeight, gender }, { merge: true });
+    await setDoc(doc(db, "users", user.uid), { bodyWeight, gender, maxSQ, maxBP, maxDL }, { merge: true });
     alert("Perfil guardado");
     updateAccountMetrics();
   } catch (err) {
@@ -464,8 +470,10 @@ window.saveProfile = async () => {
 document.addEventListener("DOMContentLoaded", () => {
   const bodyWeightInput = document.getElementById("bodyWeight");
   const genderSelect = document.getElementById("gender");
-  if (bodyWeightInput) bodyWeightInput.addEventListener("input", updateAccountMetrics);
-  if (genderSelect) genderSelect.addEventListener("change", updateAccountMetrics);
+  const liveFields = [bodyWeightInput, genderSelect, document.getElementById("maxSQ"), document.getElementById("maxBP"), document.getElementById("maxDL")];
+  liveFields.forEach(el => {
+    if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", updateAccountMetrics);
+  });
 });
 
 window.logout = async () => {
