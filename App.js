@@ -45,51 +45,34 @@ function initApp(userId) {
 
 // --- DATOS RUTINA ---
 const routineData = {
-  Lunes: [
-    { ex: "SQ 420T", set: "3 x 4 @4" },
-    { ex: "DL SUMO 300T", set: "4 x 5 @4" },
-    { ex: "Curl femoral", set: "3 x 12 RIR 1" },
-    { ex: "Aductor", set: "3 x 12 RIR 0" },
-    { ex: "Rumano con mancuernas", set: "4 x 8 RIR 0" }
-  ],
-
-  Martes: [
-    { ex: "BP Board", set: "1 x 2 @7 / 3 x 4 @4" },
-    { ex: "Militar con mancuernas", set: "3 x 8 RIR 2" },
-    { ex: "Remo en T", set: "4 x 8 RIR 0" },
-    { ex: "Jalón al pecho", set: "3 x 12 RIR 1" },
-    { ex: "Dominadas", set: "4 series" }
-  ],
-
-  Miércoles: [
-    { ex: "BP 420T", set: "3 x 5 @4" },
-    { ex: "Press inclinado con mancuernas", set: "3 x 8 RIR 0" },
-    { ex: "Aperturas", set: "2 x 12 RIR 1" },
-    { ex: "Extensión de tríceps", set: "4 x 12 RIR 0" },
-    { ex: "Press francés", set: "2 x 6 RIR 0" }
-  ],
-
+  Lunes: [{ ex: "SQ 420T", set: "3 x 4 @4" }, { ex: "DL SUMO 300T", set: "4 x 5 @4" }, { ex: "Curl femoral", set: "3 x 12 RIR 1" }, { ex: "Aductor", set: "3 x 12 RIR 0" }, { ex: "Rumano con mancuernas", set: "4 x 8 RIR 0" }],
+  Martes: [{ ex: "BP Board", set: "1 x 2 @7 / 3 x 4 @4" }, { ex: "Militar con mancuernas", set: "3 x 8 RIR 2" }, { ex: "Remo en T", set: "4 x 8 RIR 0" }, { ex: "Jalón al pecho", set: "3 x 12 RIR 1" }, { ex: "Dominadas", set: "4 series" }],
+  Miércoles: [{ ex: "BP 420T", set: "3 x 5 @4" }, { ex: "Press inclinado con mancuernas", set: "3 x 8 RIR 0" }, { ex: "Aperturas", set: "2 x 12 RIR 1" }, { ex: "Extensión de tríceps", set: "4 x 12 RIR 0" }, { ex: "Press francés", set: "2 x 6 RIR 0" }],
   Jueves: [],
-
-  Viernes: [
-    { ex: "SQ LB", set: "2 x 2 x 112.5 / 4 x 3 @4" },
-    { ex: "BP", set: "3 x 2 67.5 / 2 x 2 72.5 / 1 x 1 80" },
-    { ex: "DL SUMO", set: "1 x 1 x 125 / 3 x 3 90 / 1 x 1 x 125" },
-    { ex: "Prensa", set: "3 x 12 RIR 1" },
-    { ex: "Extensión de cuádriceps", set: "2 x 12 RIR 1" }
-  ],
-
-  Sábado: [
-    { ex: "Flor press con barra", set: "1 x 2 @8 / 3 x 6 @4" },
-    { ex: "Militar con barra sentado", set: "4 x 6 RIR 2" },
-    { ex: "Extensión de tríceps con barra", set: "3 x 12 RIR 0" },
-    { ex: "Fondos", set: "3 x 6 RIR 2" },
-    { ex: "Laterales", set: "5 x 8 RIR 0" }
-  ],
-
+  Viernes: [{ ex: "SQ LB", set: "2 x 2 x 112.5 / 4 x 3 @4" }, { ex: "BP", set: "3 x 2 67.5 / 2 x 2 72.5 / 1 x 1 80" }, { ex: "DL SUMO", set: "1 x 1 x 125 / 3 x 3 90 / 1 x 1 x 125" }, { ex: "Prensa", set: "3 x 12 RIR 1" }, { ex: "Extensión de cuádriceps", set: "2 x 12 RIR 1" }],
+  Sábado: [{ ex: "Flor press con barra", set: "1 x 2 @8 / 3 x 6 @4" }, { ex: "Militar con barra sentado", set: "4 x 6 RIR 2" }, { ex: "Extensión de tríceps con barra", set: "3 x 12 RIR 0" }, { ex: "Fondos", set: "3 x 6 RIR 2" }, { ex: "Laterales", set: "5 x 8 RIR 0" }],
   Domingo: []
 };
 
+function updateExercises() {
+  const day = document.getElementById("workoutDay").value;
+  const exSelect = document.getElementById("workoutEx");
+  exSelect.innerHTML = '<option value="">Ejercicio</option>';
+  const exercises = routineData[day] || [];
+  exercises.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.ex;
+    opt.textContent = item.ex;
+    exSelect.appendChild(opt);
+  });
+}
+
+window.updateExercises = updateExercises;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const daySelect = document.getElementById("workoutDay");
+  if (daySelect) daySelect.addEventListener("change", updateExercises);
+});
 
 window.addWeight = (amount) => {
   const input = document.getElementById("workoutWeight");
