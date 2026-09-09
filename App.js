@@ -176,20 +176,57 @@ window.saveWorkout = async () => {
 };
 
 // --- HISTORIAL ---
+let allWorkouts = [];
+
+function toDateInputValue(dateLike) {
+  const d = new Date(dateLike);
+  const offset = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 10);
+}
+
+function filterWorkoutsByDate(workouts, dateStr) {
+  if (!dateStr) return workouts;
+  return workouts.filter(w => toDateInputValue(w.date) === dateStr);
+}
+
 function loadWorkouts(userId) {
   const q = query(collection(db, "users", userId, "workouts"), orderBy("timestamp", "desc"));
   onSnapshot(q, (snapshot) => {
-    const workouts = [];
-    snapshot.forEach(doc => workouts.push(doc.data()));
-    renderHistory(workouts);
-    updateCharts(workouts);
+    allWorkouts = [];
+    snapshot.forEach(doc => allWorkouts.push(doc.data()));
+    updateCharts(allWorkouts);
+
+    // Por defecto el calendario apunta al último día con registros guardados
+    const dateInput = document.getElementById("historyDate");
+    if (dateInput && !dateInput.value && allWorkouts.length > 0) {
+      dateInput.value = toDateInputValue(allWorkouts[0].date);
+    }
+    renderHistory(filterWorkoutsByDate(allWorkouts, dateInput ? dateInput.value : ""));
   });
 }
+
+window.filterHistory = () => {
+  const dateInput = document.getElementById("historyDate");
+  renderHistory(filterWorkoutsByDate(allWorkouts, dateInput ? dateInput.value : ""));
+};
+
+window.clearHistoryFilter = () => {
+  const dateInput = document.getElementById("historyDate");
+  if (!dateInput) return;
+  dateInput.value = allWorkouts.length > 0 ? toDateInputValue(allWorkouts[0].date) : "";
+  window.filterHistory();
+};
 
 function renderHistory(workouts) {
   const container = document.getElementById("workoutList");
   if (!container) return;
   container.innerHTML = "";
+
+  if (workouts.length === 0) {
+    container.innerHTML = "<p style='color:var(--text-secondary); text-align:center'>No hay registros para esa fecha.</p>";
+    return;
+  }
 
   const groups = workouts.reduce((acc, w) => {
     const date = new Date(w.date).toLocaleDateString();
@@ -211,7 +248,7 @@ function renderHistory(workouts) {
           <div style="padding:12px 0; border-top: 1px solid rgba(0,0,0,0.05)">
             <div style="display:flex; justify-content:space-between">
               <strong style="color:var(--text-primary)">${i.ex}</strong>
-              <span style="font-weight:700">${i.weight}kg x ${i.reps}</span>
+              <span style="font-weight:700; font-size:17px">${i.weight}kg x ${i.reps}</span>
             </div>
             <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
               e1RM: ${Math.round(i.e1RM)}kg | RPE: ${i.rpe}
@@ -328,28 +365,79 @@ function updateCharts(workouts) {
 }
 
 // --- RUTINA ---
+
+// El checklist se guarda por día + fecha, así se reinicia solo cada nuevo día.
+function getRoutineCheckKey(day) {
+  return `routineCheck_${day}_${toDateInputValue(new Date())}`;
+}
+
+function getCheckedExercises(day) {
+  try {
+    const raw = localStorage.getItem(getRoutineCheckKey(day));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setCheckedExercises(day, list) {
+  localStorage.setItem(getRoutineCheckKey(day), JSON.stringify(list));
+}
+
+function updateRoutineCounter(day) {
+  const exercises = routineData[day] || [];
+  const checked = getCheckedExercises(day);
+  const counterEl = document.getElementById("routineCounter");
+  if (counterEl) counterEl.textContent = `${checked.length}/${exercises.length}`;
+}
+
+window.toggleExerciseDone = (day, exName) => {
+  const checked = getCheckedExercises(day);
+  const idx = checked.indexOf(exName);
+  if (idx >= 0) checked.splice(idx, 1); else checked.push(exName);
+  setCheckedExercises(day, checked);
+
+  const row = document.getElementById(`routine-row-${sanitizeId(exName)}`);
+  if (row) row.classList.toggle("done", checked.includes(exName));
+  updateRoutineCounter(day);
+};
+
 window.loadRoutine = (day) => {
   const container = document.getElementById("routineContent");
   const exercises = routineData[day] || [];
-  container.innerHTML = `<h2 style="margin-bottom:20px; color:var(--text-primary)">${day}</h2>`;
-  
+
+  container.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+      <h2 style="color:var(--text-primary)">${day}</h2>
+      ${exercises.length > 0 ? `<span class="text-accent" id="routineCounter" style="font-weight:700; font-size:16px">0/${exercises.length}</span>` : ''}
+    </div>
+  `;
+
   if (exercises.length === 0) {
     container.innerHTML += "<p style='color:var(--text-secondary)'>Día de descanso.</p>";
     return;
   }
 
+  const checked = getCheckedExercises(day);
   const table = document.createElement("table");
   table.className = "routine-table";
   exercises.forEach(item => {
+    const isDone = checked.includes(item.ex);
     const row = table.insertRow();
+    row.id = `routine-row-${sanitizeId(item.ex)}`;
+    if (isDone) row.classList.add("done");
     row.innerHTML = `
       <td>
-        <span class="ex-name">${item.ex}</span>
-        <span class="ex-sets">${item.set}</span>
+        <input type="checkbox" class="routine-check" ${isDone ? "checked" : ""} onchange="toggleExerciseDone(${JSON.stringify(day)}, ${JSON.stringify(item.ex)})">
+        <div>
+          <span class="ex-name">${item.ex}</span>
+          <span class="ex-sets">${item.set}</span>
+        </div>
       </td>
     `;
   });
   container.appendChild(table);
+  updateRoutineCounter(day);
 };
 
 window.calculatePlates = () => {
