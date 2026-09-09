@@ -25,7 +25,51 @@
   <!-- DASHBOARD -->
   <div id="dashboard-section">
     <h1>Progreso <span class="text-accent">SBD</span></h1>
-    
+
+    <div class="card">
+      <h2 style="margin-bottom:20px; color:var(--text-primary)">Registrar Serie</h2>
+      <div class="form-group">
+        <label>Día y Ejercicio</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+          <select id="workoutDay">
+            <option value="">Día</option>
+            <option value="Lunes">Lunes</option>
+            <option value="Martes">Martes</option>
+            <option value="Miércoles">Miércoles</option>
+            <option value="Jueves">Jueves</option>
+            <option value="Viernes">Viernes</option>
+            <option value="Sábado">Sábado</option>
+            <option value="Domingo">Domingo</option>
+          </select>
+          <select id="workoutEx"><option value="">Ejercicio</option></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Peso (kg) <span onclick="calculatePlates()" class="plates-link">Calcular discos</span></label>
+        <input type="number" id="workoutWeight" placeholder="0.0" step="0.5">
+        <div class="weight-controls">
+          <button class="weight-btn" onclick="addWeight(2.5)">+2.5</button>
+          <button class="weight-btn" onclick="addWeight(5)">+5</button>
+          <button class="weight-btn" onclick="addWeight(10)">+10</button>
+          <button class="weight-btn" onclick="addWeight(20)">+20</button>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+        <div class="form-group">
+          <label>Reps</label>
+          <input type="number" id="workoutReps" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>RPE</label>
+          <input type="number" id="workoutRPE" placeholder="8.5" step="0.5">
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveWorkout()">Guardar Registro</button>
+    </div>
+
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center">
         <h3 style="color:var(--text-primary)">Squat</h3>
@@ -49,55 +93,18 @@
       </div>
       <div class="chart-container"><canvas id="dlChart"></canvas></div>
     </div>
-
-    <div class="card">
-      <h2 style="margin-bottom:20px; color:var(--text-primary)">Registrar Serie</h2>
-      <div class="form-group">
-        <label>Día y Ejercicio</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-          <select id="workoutDay">
-            <option value="">Día</option>
-            <option value="Lunes">Lunes</option>
-            <option value="Martes">Martes</option>
-            <option value="Miércoles">Miércoles</option>
-            <option value="Jueves">Jueves</option>
-            <option value="Viernes">Viernes</option>
-            <option value="Sábado">Sábado</option>
-            <option value="Domingo">Domingo</option>
-          </select>
-          <select id="workoutEx"><option value="">Ejercicio</option></select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Peso (kg) <span onclick="calculatePlates()" style="cursor:pointer; font-size:18px">💿</span></label>
-        <input type="number" id="workoutWeight" placeholder="0.0" step="0.5">
-        <div class="weight-controls">
-          <button class="weight-btn" onclick="addWeight(2.5)">+2.5</button>
-          <button class="weight-btn" onclick="addWeight(5)">+5</button>
-          <button class="weight-btn" onclick="addWeight(10)">+10</button>
-          <button class="weight-btn" onclick="addWeight(20)">+20</button>
-        </div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-        <div class="form-group">
-          <label>Reps</label>
-          <input type="number" id="workoutReps" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label>RPE</label>
-          <input type="number" id="workoutRPE" placeholder="8.5" step="0.5">
-        </div>
-      </div>
-
-      <button class="btn-primary" onclick="saveWorkout()">Guardar Registro</button>
-    </div>
   </div>
 
   <!-- HISTORY -->
   <div id="workouts-section" style="display:none">
     <h1>Historial</h1>
+    <div class="card" style="display:flex; align-items:flex-end; gap:12px; margin-bottom:20px">
+      <div class="form-group" style="margin-bottom:0; flex:1">
+        <label>Buscar por fecha</label>
+        <input type="date" id="historyDate" onchange="filterHistory()">
+      </div>
+      <button class="weight-btn" onclick="clearHistoryFilter()" style="margin-bottom:0; padding:16px 18px">Último</button>
+    </div>
     <div id="workoutList"></div>
   </div>
 
