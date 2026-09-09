@@ -122,7 +122,46 @@
     <div class="card" id="routineContent">
       <p style="color:var(--text-secondary); text-align:center">Selecciona un día para ver tu rutina.</p>
     </div>
-    <button class="btn-primary" onclick="logout()" style="background:#ff3b30; margin-top:30px; box-shadow: 0 10px 20px rgba(255, 59, 48, 0.2)">Cerrar Sesión</button>
+  </div>
+
+  <!-- CUENTA / PERFIL -->
+  <div id="account-section" style="display:none">
+    <h1>Cuenta</h1>
+
+    <div class="card">
+      <h2 style="margin-bottom:20px; color:var(--text-primary)">Perfil</h2>
+      <div class="form-group">
+        <label>Peso corporal actual (kg)</label>
+        <input type="number" id="bodyWeight" placeholder="78.5" step="0.1" min="1">
+      </div>
+      <div class="form-group">
+        <label>Sexo</label>
+        <select id="gender">
+          <option value="">Selecciona</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="saveProfile()">Guardar Perfil</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:10px; color:var(--text-primary)">Métricas de competición</h2>
+      <div class="metric-row">
+        <span class="metric-label">Categoría de peso</span>
+        <span class="metric-value text-accent" id="weightCategory">—</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Total SBD</span>
+        <span class="metric-value text-accent" id="totalSBD">— kg</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">IPF GL Points</span>
+        <span class="metric-value text-accent" id="ipfGL">—</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="logout()" style="background:#ff3b30; margin-top:10px; box-shadow: 0 10px 20px rgba(255, 59, 48, 0.2)">Cerrar Sesión</button>
   </div>
 </div>
 
@@ -143,6 +182,10 @@
   <div class="tab-item" onclick="showSection('pesos')">
     <span class="tab-icon">🏋️</span>
     <span>Pesos</span>
+  </div>
+  <div class="tab-item" onclick="showSection('account')">
+    <span class="tab-icon">👤</span>
+    <span>Cuenta</span>
   </div>
 </div>
 
