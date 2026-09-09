@@ -3,6 +3,7 @@ import {
   db,
   doc,
   setDoc,
+  getDoc,
   collection,
   query,
   orderBy,
@@ -13,7 +14,7 @@ let charts = {};
 
 // --- NAVEGACIÓN ---
 window.showSection = (id) => {
-  const sections = ['dashboard', 'workouts', 'routine'];
+  const sections = ['dashboard', 'workouts', 'routine', 'pesos'];
   sections.forEach(s => {
     const el = document.getElementById(`${s}-section`);
     if (el) el.style.display = s === id ? 'block' : 'none';
@@ -39,6 +40,7 @@ auth.onAuthStateChanged((user) => {
 
 function initApp(userId) {
   loadWorkouts(userId);
+  loadPesos(userId);
   // Pequeño delay para asegurar que los canvas existen
   setTimeout(initCharts, 100);
 }
@@ -53,6 +55,44 @@ const routineData = {
   Sábado: [{ ex: "Flor press con barra", set: "1 x 2 @8 / 3 x 6 @4" }, { ex: "Militar con barra sentado", set: "4 x 6 RIR 2" }, { ex: "Extensión de tríceps con barra", set: "3 x 12 RIR 0" }, { ex: "Fondos", set: "3 x 6 RIR 2" }, { ex: "Laterales", set: "5 x 8 RIR 0" }],
   Domingo: []
 };
+
+// --- ZONAS MUSCULARES ---
+// Mapea cada ejercicio de la rutina a su zona de trabajo principal.
+// Si añades ejercicios nuevos a routineData, añádelos también aquí para que
+// aparezcan clasificados correctamente en la vista "Pesos".
+const exerciseMuscleGroup = {
+  "SQ 420T": "Pierna",
+  "DL SUMO 300T": "Espalda",
+  "Curl femoral": "Pierna",
+  "Aductor": "Pierna",
+  "Rumano con mancuernas": "Pierna",
+  "BP Board": "Pecho",
+  "Militar con mancuernas": "Hombro",
+  "Remo en T": "Espalda",
+  "Jalón al pecho": "Espalda",
+  "Dominadas": "Espalda",
+  "BP 420T": "Pecho",
+  "Press inclinado con mancuernas": "Pecho",
+  "Aperturas": "Pecho",
+  "Extensión de tríceps": "Tríceps",
+  "Press francés": "Tríceps",
+  "SQ LB": "Pierna",
+  "BP": "Pecho",
+  "DL SUMO": "Espalda",
+  "Prensa": "Pierna",
+  "Extensión de cuádriceps": "Pierna",
+  "Flor press con barra": "Hombro",
+  "Militar con barra sentado": "Hombro",
+  "Extensión de tríceps con barra": "Tríceps",
+  "Fondos": "Tríceps",
+  "Laterales": "Hombro"
+};
+
+const MUSCLE_GROUP_ORDER = ["Pecho", "Espalda", "Hombro", "Bíceps", "Tríceps", "Pierna"];
+
+function sanitizeId(name) {
+  return name.replace(/[/.#$\[\]]/g, "-");
+}
 
 function updateExercises() {
   const day = document.getElementById("workoutDay").value;
@@ -104,6 +144,23 @@ window.saveWorkout = async () => {
       isFriday: date.getDay() === 5,
       timestamp: Date.now()
     });
+
+    // --- ACTUALIZAR PESO MÁXIMO (PR) DEL EJERCICIO ---
+    const prRef = doc(db, "users", user.uid, "prs", sanitizeId(ex));
+    const prSnap = await getDoc(prRef);
+    const currentBest = prSnap.exists() ? prSnap.data().weight : 0;
+
+    if (weight > currentBest) {
+      await setDoc(prRef, {
+        ex,
+        weight,
+        reps,
+        muscleGroup: exerciseMuscleGroup[ex] || "Otros",
+        date: date.toISOString(),
+        timestamp: Date.now()
+      });
+    }
+
     alert("Guardado");
     document.getElementById("workoutWeight").value = "";
     document.getElementById("workoutReps").value = "";
@@ -154,6 +211,58 @@ function renderHistory(workouts) {
             <div style="font-size:12px; color:var(--text-secondary); margin-top:4px">
               e1RM: ${Math.round(i.e1RM)}kg | RPE: ${i.rpe}
             </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// --- PESOS (récords por ejercicio, agrupados por zona muscular) ---
+function loadPesos(userId) {
+  const q = query(collection(db, "users", userId, "prs"), orderBy("weight", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const prs = [];
+    snapshot.forEach(doc => prs.push(doc.data()));
+    renderPesos(prs);
+  });
+}
+
+function renderPesos(prs) {
+  const container = document.getElementById("pesosList");
+  if (!container) return;
+  container.innerHTML = "";
+
+  // Solo se agrupan ejercicios que ya tienen al menos un registro guardado.
+  const groups = prs.reduce((acc, pr) => {
+    const group = pr.muscleGroup || "Otros";
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(pr);
+    return acc;
+  }, {});
+
+  const orderedGroups = MUSCLE_GROUP_ORDER.filter(g => groups[g] && groups[g].length > 0);
+
+  if (orderedGroups.length === 0) {
+    container.innerHTML = "<p style='color:var(--text-secondary); text-align:center'>Aún no tienes pesos registrados. Guarda un ejercicio para que aparezca aquí.</p>";
+    return;
+  }
+
+  orderedGroups.forEach(group => {
+    const items = groups[group].sort((a, b) => b.weight - a.weight);
+    const div = document.createElement("div");
+    div.className = "card accordion-item active";
+    div.innerHTML = `
+      <div class="accordion-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>${group}</span>
+        <span style="color:var(--accent-color)">${items.length} ejercicio${items.length > 1 ? 's' : ''} ▾</span>
+      </div>
+      <div class="accordion-content">
+        ${items.map(i => `
+          <div style="padding:12px 0; border-top: 1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center">
+            <strong style="color:var(--text-primary)">${i.ex}</strong>
+            <span class="text-accent" style="font-weight:700">${i.weight}kg</span>
           </div>
         `).join('')}
       </div>
