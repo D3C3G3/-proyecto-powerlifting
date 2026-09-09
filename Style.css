@@ -241,6 +241,21 @@ input:focus { outline: none; border-color: var(--accent-color); background: whit
 
 .text-accent { color: var(--accent-color); }
 
+/* Métricas de cuenta / perfil */
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.metric-row:last-child { border-bottom: none; }
+
+.metric-label { color: var(--text-secondary); font-size: 14px; }
+
+.metric-value { font-weight: 700; }
+
 
 /* ==========================================
    Estilos específicos de la pantalla de Login
