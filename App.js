@@ -366,6 +366,23 @@ function updateCharts(workouts) {
 
 // --- RUTINA ---
 
+// Nombre del día actual (getDay(): 0 = Domingo ... 6 = Sábado)
+const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+function getTodayName() {
+  return DAY_NAMES[new Date().getDay()];
+}
+
+// Resalta el botón del día seleccionado en la barra L M X J V S D
+function highlightRoutineDay(day) {
+  document.querySelectorAll("#routine-section .weight-btn").forEach(btn => {
+    const onclickAttr = btn.getAttribute("onclick") || "";
+    const isActive = onclickAttr.includes(`'${day}'`);
+    btn.style.background = isActive ? "var(--accent-color)" : "";
+    btn.style.color = isActive ? "white" : "";
+  });
+}
+
 // El checklist se guarda por día + fecha, así se reinicia solo cada nuevo día.
 function getRoutineCheckKey(day) {
   return `routineCheck_${day}_${toDateInputValue(new Date())}`;
@@ -404,7 +421,10 @@ window.toggleExerciseDone = (day, exName) => {
 
 window.loadRoutine = (day) => {
   const container = document.getElementById("routineContent");
+  if (!container) return;
   const exercises = routineData[day] || [];
+
+  highlightRoutineDay(day);
 
   container.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
@@ -439,6 +459,11 @@ window.loadRoutine = (day) => {
   container.appendChild(table);
   updateRoutineCounter(day);
 };
+
+// Al abrir la app, la Rutina muestra automáticamente el día de hoy
+document.addEventListener("DOMContentLoaded", () => {
+  window.loadRoutine(getTodayName());
+});
 
 window.calculatePlates = () => {
   const target = parseFloat(document.getElementById("workoutWeight").value);
@@ -572,3 +597,52 @@ window.logout = async () => {
     window.location.href = "Login.html";
   }
 };
+
+// --- NAV DE ESCRITORIO (mismo comportamiento que el menú de desportiva) ---
+window.toggleMenu = function (event) {
+  if (event) event.stopPropagation();
+  const links = document.getElementById("navLinks");
+  const overlay = document.getElementById("navOverlay");
+  const nav = document.querySelector("nav");
+  if (!links) return; 
+
+  const isOpen = links.classList.contains("open");
+  if (!isOpen) {  
+    if (overlay) overlay.classList.add("visible");
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => {
+      links.classList.add("open");
+      if (nav) nav.classList.add("menu-abierto");
+    });
+  } else {
+    links.classList.remove("open");
+    if (nav) nav.classList.remove("menu-abierto");
+    if (overlay) overlay.classList.remove("visible");
+    document.body.style.overflow = "";
+  }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const navbar = document.querySelector("nav");
+  if (navbar) {
+    window.addEventListener("scroll", () => {
+      navbar.classList.toggle("scrolled", window.scrollY > 30);
+    });
+  }
+});
+
+// Cerrar el panel si se hace clic fuera de él (y no en el botón burger)
+document.addEventListener("click", (event) => {
+  const links = document.getElementById("navLinks");
+  const overlay = document.getElementById("navOverlay");
+  const nav = document.querySelector("nav");
+  const burger = document.querySelector(".nav-toggle");
+  if (links && links.classList.contains("open")) {
+    if (!links.contains(event.target) && burger && !burger.contains(event.target)) {
+      links.classList.remove("open");
+      if (nav) nav.classList.remove("menu-abierto");
+      if (overlay) overlay.classList.remove("visible");
+      document.body.style.overflow = "";
+    }
+  }
+});
